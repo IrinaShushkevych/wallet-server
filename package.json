@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IrinaShushkevych/wallet-server.git"
+    "url": "git+https://github.com/OlegTch/wallet-server.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/IrinaShushkevych/wallet-server/issues"
+    "url": "https://github.com/OlegTch/wallet-server/issues"
   },
-  "homepage": "https://github.com/IrinaShushkevych/wallet-server#readme",
+  "homepage": "https://github.com/OlegTch/wallet-server#readme",
   "dependencies": {
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
