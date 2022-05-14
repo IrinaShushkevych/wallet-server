@@ -220,14 +220,83 @@
         }
       }
     },
-    "/statistics?year=value&month-value": {
+    "/statistics": {
       "get": {
         "tags": ["Statistics"],
         "summary": "Get statistic per month by existing categories",
-        "parameters": [],
-        "content": {}
-      },
-      "responses": {}
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "required": true,
+            "type": "string",
+            "description": "Year for statisctic"
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "required": true,
+            "type": "string",
+            "description": "Month for statisctic"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatisticsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Error"
+                    },
+                    "code": {
+                      "type": "number",
+                      "example": "401"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Fail"
+                    },
+                    "code": {
+                      "type": "number",
+                      "example": "500"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -564,15 +633,36 @@
             "example": 8500
           }
         }
+      },
+      "StatisticsResponse": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "array",
+            "example": "An array of objects 'categoryPerMonth' with spend sum"
+          },
+          "total": {
+            "type": "object",
+            "properties": {
+              "expense": {
+                "type": "number",
+                "example": 240000
+              },
+              "income": {
+                "type": "Number",
+                "example": 1400000
+              }
+            }
+          }
+        }
       }
     },
-    "StatisticsResponse": {}
-  },
-  "securitySchemes": {
-    "Bearer": {
-      "type": "http",
-      "scheme": "bearer",
-      "bearerFormat": "JWT"
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
     }
   }
 }
