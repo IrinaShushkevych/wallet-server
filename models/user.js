@@ -40,8 +40,7 @@ const joiSchemaRegistr = Joi.object({
     .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
     .required(),
   password: Joi.string().min(6).required(),
-  userName: Joi.string().alphanum().min(3).max(30).required(),
-  repeat_password: Joi.ref("password").required(),
+  userName: Joi.string().alphanum().min(3).max(30).required()
 });
 
 const User = model("user", userSchema);
