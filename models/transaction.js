@@ -45,7 +45,7 @@ const joiTransactionSchema = Joi.object({
   income: Joi.boolean().required(),
   sum: Joi.number().required(),
   comment: Joi.string(),
-  balance: Joi.number().min(0),
+  // balance: Joi.number().min(0),
   datetime: Joi.number().required(),
 });
 const Transaction = model("transaction", transactionSchema);

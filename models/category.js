@@ -16,6 +16,8 @@ const categorySchema = Schema(
         "Дом",
         "Образование",
         "Остальные",
+        "Регулярный",
+        "Нерегулярный",
       ],
       default: "Еда",
       required: [true, "Category is required"],
