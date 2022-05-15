@@ -6,8 +6,10 @@ require("dotenv").config();
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("../swagger.json");
 
-const categoriesRouter = require('../routes/api/categories');
-const transactionsRouter = require('../routes/api/transactions')
+const authRouter = require("../routes/api/auth");
+const usersRouter = require("../routes/api/users");
+const categoriesRouter = require("../routes/api/categories");
+const transactionsRouter = require("../routes/api/transactions");
 
 const app = express();
 const router = express.Router();
@@ -20,6 +22,8 @@ app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/auth", authRouter);
+app.use("/api/users", usersRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/transactions", transactionsRouter);
 

@@ -1,15 +1,21 @@
 const { Schema, model } = require("mongoose");
 const Joi = require("joi");
 
+const { constants } = require("../libs");
+
 const userSchema = Schema(
   {
     password: {
       type: String,
       required: [true, "Password is required"],
+      minlength: constants.LIMIT_LENGTH_PASSWORD.minLength,
+      // maxlength: constants.LIMIT_LENGTH_PASSWORD.maxLength,
     },
     email: {
       type: String,
       required: [true, "Email is required"],
+      minlength: constants.LIMIT_LENGTH_EMAIL.min,
+      maxlength: constants.LIMIT_LENGTH_EMAIL.max,
       unique: true,
     },
     token: {
@@ -22,6 +28,9 @@ const userSchema = Schema(
     },
     userName: {
       type: String,
+      minlength: constants.LIMIT_LENGTH_NAME.minLength,
+      maxlength: constants.LIMIT_LENGTH_NAME.maxLength,
+      required: [true, "Name is required"],
     },
     repeat_password: {
       type: String,
@@ -31,22 +40,44 @@ const userSchema = Schema(
 );
 
 const joiSchemaLogIn = Joi.object({
-  email: Joi.string().required(),
-  password: Joi.string().min(6).required(),
+  email: Joi.string()
+    .email({
+      minDomainSegments: constants.MIN_DOMAIN_SEGMENTS,
+      tlds: { allow: ["com", "net"] },
+    })
+    .min(constants.LIMIT_LENGTH_EMAIL.min)
+    .max(constants.LIMIT_LENGTH_EMAIL.max)
+    .required(),
+  password: Joi.string()
+    .min(constants.LIMIT_LENGTH_PASSWORD.minLength)
+    .max(constants.LIMIT_LENGTH_PASSWORD.maxLength)
+    .required(),
 });
 
-const joiSchemaRegistr = Joi.object({
+const joiSchemaRegister = Joi.object({
   email: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+    .email({
+      minDomainSegments: constants.MIN_DOMAIN_SEGMENTS,
+      tlds: { allow: ["com", "net"] },
+    })
+    .min(constants.LIMIT_LENGTH_EMAIL.min)
+    .max(constants.LIMIT_LENGTH_EMAIL.max)
     .required(),
-  password: Joi.string().min(6).required(),
-  userName: Joi.string().alphanum().min(3).max(30).required()
+  password: Joi.string()
+    .min(constants.LIMIT_LENGTH_PASSWORD.minLength)
+    .max(constants.LIMIT_LENGTH_PASSWORD.maxLength)
+    .required(),
+  userName: Joi.string()
+    .alphanum()
+    .min(constants.LIMIT_LENGTH_NAME.minLength)
+    .max(constants.LIMIT_LENGTH_NAME.maxLength)
+    .required(),
 });
 
 const User = model("user", userSchema);
 
 module.exports = {
   User,
-  joiSchemaRegistr,
+  joiSchemaRegister,
   joiSchemaLogIn,
 };
