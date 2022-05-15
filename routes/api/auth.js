@@ -12,6 +12,6 @@ router.post(
   wrapper(authModel.register)
 );
 router.post("/login", validation(joiSchemaLogIn), wrapper(authModel.login));
-router.get("/logout", auth, wrapper(authModel.logout));
+router.get("/logout", wrapper(auth), wrapper(authModel.logout));
 
 module.exports = router;

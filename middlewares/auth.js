@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { Unauthorized, Conflict } = require("http-errors");
 const { constantsStatus } = require("../libs");
 
 const { User } = require("../models");
@@ -11,32 +12,24 @@ const auth = async (req, res, next) => {
 
   try {
     if (bearer !== "Bearer") {
-      return res.status(constantsStatus.HTTP_STATUS_CODE.UNAUTHORIZED).json({
-        status: "error",
-        code: constantsStatus.HTTP_STATUS_CODE.UNAUTHORIZED,
-        message: "Not authorized",
-      });
+      console.log(`1`);
+      throw new Unauthorized("Not authorized");
     }
 
     const { id } = jwt.verify(token, SECRET_KEY);
 
     const user = await User.findById(id);
+
     if (!user || !user.token) {
-      return res.status(constantsStatus.HTTP_STATUS_CODE.UNAUTHORIZED).json({
-        status: "error",
-        code: constantsStatus.HTTP_STATUS_CODE.UNAUTHORIZED,
-        message: "Not authorized",
-      });
+      throw new Unauthorized("Not authorized");
     }
     req.user = user;
+
     next();
   } catch (error) {
-    if (error.message === "invalid signature" || "Invalid signature") {
-      return res.status(constantsStatus.HTTP_STATUS_CODE.UNAUTHORIZED).json({
-        status: "error",
-        code: constantsStatus.HTTP_STATUS_CODE.UNAUTHORIZED,
-        message: "Not authorized",
-      });
+    if (error.message === "invalid signature") {
+      throw new Unauthorized("Not authorized");
+      error.status = constantsStatus.HTTP_STATUS_CODE.UNAUTHORIZED;
     }
     next(error);
   }

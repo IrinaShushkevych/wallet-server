@@ -5,6 +5,6 @@ const { users: usersModel } = require("../../controllers");
 
 const router = express.Router();
 
-router.get("/current", auth, wrapper(usersModel.getCurrent));
+router.get("/current", wrapper(auth), wrapper(usersModel.getCurrent));
 
 module.exports = router;
