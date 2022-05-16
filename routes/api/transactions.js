@@ -1,14 +1,14 @@
 const express = require("express");
 
 const { transactions } = require("../../controllers");
-const { wrapper, authMiddleware, validation } = require('../../middlewares');
-const { Transaction } = require('../../models')
+const { wrapper, auth, validation } = require('../../middlewares');
+const { joiTransactionSchema } = require('../../models')
 
 const router = express.Router();
 
 
-router.get("/", /*authMiddleware,*/ wrapper(transactions.getTransactions));
+router.get("/", auth, wrapper(transactions.getTransactions));
 
-router.post("/", /*authMiddleware,*/ validation(Transaction.joiTransactionSchema), wrapper(transactions.addTransaction));
+router.post("/", auth, validation(joiTransactionSchema), wrapper(transactions.addTransaction));
 
 module.exports = router;
