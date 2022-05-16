@@ -14,16 +14,17 @@ const transactionSchema = Schema(
     },
     comment: {
       type: String,
+      default: null
     },
     balance: {
       type: Number,
     },
     datetime: {
-      type: String,
+      type: Number,
       required: [true, "Datetime is required"],
     },
     month: {
-      type: String,
+      type: Number,
     },
     category: {
       type: Schema.Types.ObjectId,
@@ -45,8 +46,8 @@ const joiTransactionSchema = Joi.object({
   income: Joi.boolean().required(),
   sum: Joi.number().required(),
   comment: Joi.string(),
-  // balance: Joi.number().min(0),
-  datetime: Joi.number().required(),
+  category: Joi.string().required(),
+  datetime: Joi.string().required(),
 });
 const Transaction = model("transaction", transactionSchema);
 
