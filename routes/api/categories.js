@@ -1,12 +1,13 @@
 const express = require("express");
 
 const { categories } = require("../../controllers");
-const { wrapper } = require('../../middlewares');
+const { wrapper, validation } = require('../../middlewares');
+const { joiCategorySchema } = require('../../models')
 
 const router = express.Router();
 
 
 router.get("/:type", wrapper(categories.getCategories));
-router.post("/", wrapper(categories.addCategories));
+router.post("/", validation(joiCategorySchema), wrapper(categories.addCategories));
 
 module.exports = router;

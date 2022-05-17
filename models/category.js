@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const Joi = require("joi");
 
 const categorySchema = Schema(
   {
@@ -9,25 +10,31 @@ const categorySchema = Schema(
     name: {
       type: String,
       enum: [
-        "Еда",
+        "Продукти",
         "Авто",
-        "Развитие",
-        "Дети",
-        "Дом",
-        "Образование",
-        "Остальные",
-        "Регулярный",
-        "Нерегулярный",
+        "Розвиток",
+        "Діти",
+        "Дім",
+        "Освіта",
+        "Інше",
+        "Регулярний",
+        "Нерегулярний",
       ],
-      default: "Еда",
+      default: "Продукти",
       required: [true, "Category is required"],
     },
   },
   { versionKey: false, timestamps: true }
 );
 
+const joiCategorySchema = Joi.object({
+  income: Joi.boolean().required(),
+  name: Joi.string().required()
+});
+
 const Category = model("category", categorySchema);
 
 module.exports = {
   Category,
+  joiCategorySchema
 };
