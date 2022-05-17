@@ -1,3 +1,5 @@
+const { BadRequest, Unauthorized } = require('http-errors');
+
 const { Transaction, User } = require("../../models");
 
 module.exports = async (req, res, next) => {
@@ -7,7 +9,7 @@ module.exports = async (req, res, next) => {
   const user = await User.findById({ _id });
 
   if (!user) {
-    throw new Error("Unauthorized");
+    throw new Unauthorized("Unauthorized");
   }
 
   const date = new Date(datetime).getTime();
@@ -30,6 +32,10 @@ module.exports = async (req, res, next) => {
     balance: currentBalance,
     owner: _id,
   });
+
+  if (!newTransaction) {
+    throw new BadRequest("Creating a transaction failed.");
+  }
 
   const transactionsToUpdate = await Transaction.find({ owner: _id })
     .where("datetime")

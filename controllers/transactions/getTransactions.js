@@ -1,12 +1,15 @@
-const { BadRequest } = require('http-errors');
+const { BadRequest, Unauthorized} = require('http-errors');
 
 const { Transaction } = require("../../models");
 
 module.exports = async (req, res) => {
   const { _id } = req.user;
-  const {page = 1, limit = 20} = req.query;
+  const {page = 1, limit = 5} = req.query;
   const skip = (page - 1) * limit;
 
+  if (!user) {
+    throw new Unauthorized("Unauthorized");
+  }
 
   const transactions = await Transaction.find({ owner: _id }, "", {skip, limit: Number(limit)})
     .sort({ datetime: -1, createdAt: -1 })
