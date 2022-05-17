@@ -23,11 +23,15 @@
     },
     {
       "name": "Statistics",
+      "description": "Statistics endpoints"
+    },
+    {
+      "name": "Categories",
       "description": "Categories endpoints"
     }
   ],
   "paths": {
-    "/users/signup": {
+    "/api/auth/register": {
       "post": {
         "tags": ["User"],
         "summary": "User registration",
@@ -65,7 +69,7 @@
         }
       }
     },
-    "/users/login": {
+    "/api/auth/login": {
       "post": {
         "tags": ["User"],
         "summary": "User authentication",
@@ -92,18 +96,14 @@
               }
             }
           },
-          "400": {
-            "description": "Bad request (invalid request body)",
-            "content": {}
-          },
-          "409": {
-            "description": "Provided email already exists",
+          "401": {
+            "description": "Email or password is wrong",
             "content": {}
           }
         }
       }
     },
-    "/users/current": {
+    "/api/users/current": {
       "get": {
         "tags": ["User"],
         "summary": "User info",
@@ -115,19 +115,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
+                  "$ref": "#/components/schemas/RegistrationResponse"
                 }
               }
             }
           },
           "401": {
-            "description": "Missing header with authorization token.",
+            "description": "Not authorized.",
             "content": {}
           }
         }
       }
     },
-    "/user/logout": {
+    "/api/auth/logout": {
       "post": {
         "tags": ["User"],
         "summary": "User logout",
@@ -139,22 +139,33 @@
             "content": {}
           },
           "401": {
-            "description": "Missing header with authorization token.",
-            "content": {}
-          },
-          "404": {
-            "description": "Invalid user / Invalid session",
+            "description": "Not authorized.",
             "content": {}
           }
         }
       }
     },
-    "/transactions/get": {
+    "/api/transactions": {
       "get": {
         "tags": ["Transactions"],
         "summary": "History of transactions",
         "security": [{ "Bearer": [] }],
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer",
+            "description": "How page you need"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "type": "integer",
+            "description": "How transactions you need"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful operation",
@@ -166,12 +177,12 @@
               }
             }
           },
-          "401": {
-            "description": "Missing header with authorization token.",
+          "400": {
+            "description": "Bad request",
             "content": {}
           },
-          "404": {
-            "description": "Not found transactions",
+          "401": {
+            "description": "Missing header with authorization token.",
             "content": {}
           },
           "500": {
@@ -179,9 +190,7 @@
             "content": {}
           }
         }
-      }
-    },
-    "/transactions/add": {
+      },
       "post": {
         "tags": ["Transactions"],
         "summary": "Add transaction",
@@ -200,7 +209,7 @@
         },
         "responses": {
           "201": {
-            "description": "Successful operation",
+            "description": "Created",
             "content": {
               "application/json": {
                 "schema": {
@@ -224,6 +233,7 @@
       "get": {
         "tags": ["Statistics"],
         "summary": "Get statistic per month by existing categories",
+        "security": [{ "Bearer": [] }],
         "parameters": [
           {
             "in": "query",
@@ -247,6 +257,78 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/StatisticsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Error"
+                    },
+                    "code": {
+                      "type": "number",
+                      "example": "401"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Fail"
+                    },
+                    "code": {
+                      "type": "number",
+                      "example": "500"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/categories/{type}": {
+      "get": {
+        "tags": ["Categories"],
+        "security": [{ "Bearer": [] }],
+        "summary": "Get categories",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "type",
+            "required": true,
+            "type": "string",
+            "description": "Type of categories"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoriesResponse"
                 }
               }
             }
@@ -330,21 +412,27 @@
       },
       "RegistrationResponse": {
         "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "description": "User's email",
-            "format": "email"
-          },
-          "username": {
-            "type": "string",
-            "description": "User's name",
-            "example": "Adam"
-          },
-          "id": {
-            "type": "string",
-            "description": "User's id",
-            "example": "fdhy66767364huhdgh"
+        "items": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "description": "User's email",
+              "format": "email",
+              "minlength": 3,
+              "maxlength": 100
+            },
+            "userName": {
+              "type": "string",
+              "description": "User name",
+              "example": "Adam"
+            }
+          }
+        },
+        "example": {
+          "user": {
+            "email": "user@example.com",
+            "userName": "Adam"
           }
         }
       },
@@ -370,84 +458,42 @@
       },
       "LoginResponse": {
         "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "description": "User's email",
-            "format": "email",
-            "minlength": 3,
-            "maxlength": 100
-          },
-          "id": {
-            "type": "string",
-            "description": "User's id",
-            "example": "736473hjhhfgfft67fdf"
-          },
-          "username": {
-            "type": "string",
-            "description": "User's name",
-            "minlength": 2,
-            "maxlength": 36,
-            "example": "Adam"
-          },
-          "token": {
-            "type": "string",
-            "description": "User's token",
-            "example": "fdhy66767364huhdgh"
-          },
-          "userBalance": {
-            "type": "number",
-            "description": "User balance",
-            "example": 12000
+        "items": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "description": "User's email",
+              "format": "email",
+              "minlength": 3,
+              "maxlength": 100
+            },
+            "userName": {
+              "type": "string",
+              "description": "User name",
+              "example": "Adam"
+            },
+            "token": {
+              "type": "string",
+              "description": "User's token",
+              "example": "213jhjhu2h132h7eh27h71h"
+            }
           }
+        },
+        "example": {
+          "user": {
+            "email": "user@example.com",
+            "userName": "Adam"
+          },
+          "token": "213jhjhu2h132h7eh27h71h"
         }
       },
       "NewTransactionResponse": {
         "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Id of transaction",
-            "example": "62536hghgdhg"
-          },
-          "date": {
-            "type": "string",
-            "description": "Date of transaction",
-            "example": "20.12.19"
-          },
-          "income": {
-            "type": "boolean",
-            "description": "Type of transaction",
-            "example": false
-          },
-          "category": {
-            "type": "string",
-            "description": "Category of transaction",
-            "example": "Products"
-          },
-          "comment": {
-            "type": "string",
-            "description": "Comment of transaction",
-            "example": "Products for home"
-          },
-          "sum": {
-            "type": "number",
-            "description": "Sum of transaction",
-            "example": 500
-          },
-          "balance": {
-            "type": "number",
-            "description": "Remaining balance",
-            "example": 8500
-          }
-        }
-      },
-      "TransactionResponse": {
-        "type": "array",
         "items": {
           "type": "object",
           "properties": {
-            "id": {
+            "_id": {
               "type": "string",
               "description": "Id of transaction",
               "example": "62536hghgdhg"
@@ -484,46 +530,9 @@
             }
           }
         },
-        "example": [
-          {
-            "id": {
-              "type": "string",
-              "description": "Id of transaction",
-              "example": "4trgtg454grg44"
-            },
-            "date": {
-              "type": "string",
-              "description": "Date of transaction",
-              "example": "19.12.19"
-            },
-            "income": {
-              "type": "boolean",
-              "description": "Type of transaction",
-              "example": false
-            },
-            "category": {
-              "type": "string",
-              "description": "Category of transaction",
-              "example": "Products"
-            },
-            "comment": {
-              "type": "string",
-              "description": "Comment of transaction",
-              "example": "Products for home"
-            },
-            "sum": {
-              "type": "number",
-              "description": "Sum of transaction",
-              "example": 1500
-            },
-            "balance": {
-              "type": "number",
-              "description": "Remaining balance",
-              "example": 9000
-            }
-          },
-          {
-            "id": {
+        "example": {
+          "transaction": {
+            "_id": {
               "type": "string",
               "description": "Id of transaction",
               "example": "62536hghgdhg"
@@ -558,39 +567,164 @@
               "description": "Remaining balance",
               "example": 8500
             }
-          },
-          {
-            "id": {
+          }
+        }
+      },
+      "TransactionResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "_id": {
               "type": "string",
               "description": "Id of transaction",
-              "example": "908989836hghgdhg"
+              "example": "62536hghgdhg"
             },
             "date": {
               "type": "string",
               "description": "Date of transaction",
-              "example": "21.12.19"
+              "example": "20.12.19"
             },
             "income": {
               "type": "boolean",
               "description": "Type of transaction",
-              "example": true
+              "example": false
             },
             "category": {
               "type": "string",
               "description": "Category of transaction",
-              "example": "Kids"
+              "example": "Products"
             },
             "comment": {
               "type": "string",
               "description": "Comment of transaction",
-              "example": "Toys"
+              "example": "Products for home"
             },
             "sum": {
               "type": "number",
               "description": "Sum of transaction",
-              "example": 1000
+              "example": 500
             },
-            "balance": {
+            "user_balance": {
+              "type": "number",
+              "description": "Remaining balance",
+              "example": 8500
+            }
+          }
+        },
+        "example": [
+          {
+            "transaction": {
+              "_id": {
+                "type": "string",
+                "description": "Id of transaction",
+                "example": "4trgtg454grg44"
+              },
+              "date": {
+                "type": "string",
+                "description": "Date of transaction",
+                "example": "19.12.19"
+              },
+              "income": {
+                "type": "boolean",
+                "description": "Type of transaction",
+                "example": false
+              },
+              "category": {
+                "type": "string",
+                "description": "Category of transaction",
+                "example": "Products"
+              },
+              "comment": {
+                "type": "string",
+                "description": "Comment of transaction",
+                "example": "Products for home"
+              },
+              "sum": {
+                "type": "number",
+                "description": "Sum of transaction",
+                "example": 1500
+              }
+            },
+            "user_balance": {
+              "type": "number",
+              "description": "Remaining balance",
+              "example": 9000
+            }
+          },
+          {
+            "transaction": {
+              "_id": {
+                "type": "string",
+                "description": "Id of transaction",
+                "example": "62536hghgdhg"
+              },
+              "date": {
+                "type": "string",
+                "description": "Date of transaction",
+                "example": "20.12.19"
+              },
+              "income": {
+                "type": "boolean",
+                "description": "Type of transaction",
+                "example": false
+              },
+              "category": {
+                "type": "string",
+                "description": "Category of transaction",
+                "example": "Products"
+              },
+              "comment": {
+                "type": "string",
+                "description": "Comment of transaction",
+                "example": "Products for home"
+              },
+              "sum": {
+                "type": "number",
+                "description": "Sum of transaction",
+                "example": 500
+              }
+            },
+            "user_balance": {
+              "type": "number",
+              "description": "Remaining balance",
+              "example": 8500
+            }
+          },
+          {
+            "transaction": {
+              "_id": {
+                "type": "string",
+                "description": "Id of transaction",
+                "example": "908989836hghgdhg"
+              },
+              "date": {
+                "type": "string",
+                "description": "Date of transaction",
+                "example": "21.12.19"
+              },
+              "income": {
+                "type": "boolean",
+                "description": "Type of transaction",
+                "example": true
+              },
+              "category": {
+                "type": "string",
+                "description": "Category of transaction",
+                "example": "Kids"
+              },
+              "comment": {
+                "type": "string",
+                "description": "Comment of transaction",
+                "example": "Toys"
+              },
+              "sum": {
+                "type": "number",
+                "description": "Sum of transaction",
+                "example": 1000
+              }
+            },
+            "user_balance": {
               "type": "number",
               "description": "Remaining balance",
               "example": 7500
@@ -626,11 +760,6 @@
             "type": "number",
             "description": "Sum of transaction",
             "example": 500
-          },
-          "balance": {
-            "type": "number",
-            "description": "Remaining balance",
-            "example": 8500
           }
         }
       },
@@ -654,6 +783,28 @@
               }
             }
           }
+        }
+      },
+      "CategoriesResponse": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "array",
+            "example": "An array of objects 'categoryPerMonth' with spend sum"
+          }
+        },
+        "example": {
+          "categories": [
+            "Еда",
+            "Авто",
+            "Развитие",
+            "Дети",
+            "Дом",
+            "Образование",
+            "Остальные",
+            "Регулярный",
+            "Нерегулярный"
+          ]
         }
       }
     },

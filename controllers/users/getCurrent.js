@@ -1,14 +1,15 @@
-const { constantsStatus } = require("../../libs");
+const { constantsStatus } = require('../../libs');
 
 const getCurrent = async (req, res) => {
-  const { userName, email } = req.user;
+  const { userName, email, userBalance } = req.user;
   res.json({
-    status: "success",
+    status: 'success',
     code: constantsStatus.HTTP_STATUS_CODE.OK,
     data: {
       user: {
         userName,
         email,
+        balance: userBalance,
       },
     },
   });
