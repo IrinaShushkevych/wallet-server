@@ -4,9 +4,6 @@ const { Transaction, User } = require('../../models');
 
 module.exports = async (req, res) => {
   const { _id } = req.user;
-  let { page, limit=20 } = req.query;
-
-  const skip = (page - 1) * limit;
 
   const user = await User.findById({ _id });
 
@@ -14,10 +11,7 @@ module.exports = async (req, res) => {
     throw new Unauthorized("Unauthorized");
   }
 
-  const transactions = await Transaction.find({ owner: _id }, '', {
-    skip,
-    limit: Number(limit),
-  })
+  const transactions = await Transaction.find({ owner: _id })
     .sort({ datetime: -1, createdAt: -1 })
     .populate('owner', 'name email')
     .populate('category', 'name');
@@ -27,15 +21,13 @@ module.exports = async (req, res) => {
   }
 
   const currentBalance = transactions[0]?.balance || 0;
-  const totalPages = Math.ceil(transactions.length/limit)
 
   res.status(200).json({
     status: 'success',
     data: {
       transactions,
       user_balance: currentBalance,
-      page,
-      total_pages: totalPages
+      total: transactions.length
     },
   });
 };
