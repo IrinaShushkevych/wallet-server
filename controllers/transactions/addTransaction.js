@@ -51,7 +51,6 @@ module.exports = async (req, res, next) => {
       newBalance = transactionsToUpdate[i].income
         ? previousTransactionBalance + transactionsToUpdate[i].sum
         : previousTransactionBalance - transactionsToUpdate[i].sum;
-      console.log("newBalance", newBalance);
 
       await Transaction.findByIdAndUpdate(transactionId, {
         balance: newBalance,
