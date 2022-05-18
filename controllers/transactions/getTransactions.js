@@ -4,7 +4,8 @@ const { Transaction, User } = require('../../models');
 
 module.exports = async (req, res) => {
   const { _id } = req.user;
-  const { page = 1, limit = 5 } = req.query;
+  let { page, limit=20 } = req.query;
+
   const skip = (page - 1) * limit;
 
   const user = await User.findById({ _id });
@@ -26,12 +27,15 @@ module.exports = async (req, res) => {
   }
 
   const currentBalance = transactions[0]?.balance || 0;
+  const totalPages = Math.ceil(transactions.length/limit)
 
   res.status(200).json({
     status: 'success',
     data: {
       transactions,
       user_balance: currentBalance,
+      page,
+      total_pages: totalPages
     },
   });
 };
