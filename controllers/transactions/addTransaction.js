@@ -22,7 +22,7 @@ module.exports = async (req, res, next) => {
     .sort({ datetime: -1, createdAt: -1 });
 
   const prevBalance = prevTransactions[0]?.balance || 0;
-  const currentBalance = income ? prevBalance + sum : prevBalance - sum;
+  const currentBalance = income ? prevBalance + Number(sum) : prevBalance - Number(sum);
 
   const newTransaction = await Transaction.create({
     ...req.body,
