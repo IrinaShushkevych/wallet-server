@@ -14,9 +14,7 @@ const auth = async (req, res, next) => {
     if (bearer !== "Bearer") {
       throw new Unauthorized("Not authorized");
     }
-
     const { id } = jwt.verify(token, SECRET_KEY);
-
     const user = await User.findById(id);
 
     if (!user || !user.token) {
@@ -28,7 +26,8 @@ const auth = async (req, res, next) => {
   } catch (error) {
     if (
       error.message === "invalid signature" ||
-      error.message === "jwt expired"
+      error.message === "jwt expired" ||
+      error.message === "invalid token"
     ) {
       throw new Unauthorized("Not authorized");
       // error.status = constantsStatus.HTTP_STATUS_CODE.UNAUTHORIZED;

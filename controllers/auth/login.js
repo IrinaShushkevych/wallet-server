@@ -6,13 +6,17 @@ const { User } = require("../../models");
 const { constantsStatus } = require("../../libs");
 const { SECRET_KEY } = process.env;
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
+  if (!user) {
+    throw new Unauthorized(`Email or password is wrong`);
+  }
+
   const passCompare = bcrypt.compareSync(password, user.password);
 
-  if (!user || !passCompare) {
+  if (!passCompare) {
     throw new Unauthorized(`Email or password is wrong`);
   }
 
