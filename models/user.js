@@ -68,7 +68,8 @@ const joiSchemaRegister = Joi.object({
     .max(constants.LIMIT_LENGTH_PASSWORD.maxLength)
     .required(),
   userName: Joi.string()
-    .alphanum()
+    // .alphanum()
+    .pattern(/^[a-zA-Zа-яА-Я0-9їЇіІєЄ,_"/\\ -]+$/)
     .min(constants.LIMIT_LENGTH_NAME.minLength)
     .max(constants.LIMIT_LENGTH_NAME.maxLength)
     .required(),
