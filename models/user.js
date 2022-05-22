@@ -60,16 +60,17 @@ const joiSchemaRegister = Joi.object({
       minDomainSegments: constants.MIN_DOMAIN_SEGMENTS,
       tlds: { allow: ["com", "net"] },
     })
+    .pattern(/^[a-zA-Z0-9_-]+$/)
     .min(constants.LIMIT_LENGTH_EMAIL.min)
     .max(constants.LIMIT_LENGTH_EMAIL.max)
     .required(),
   password: Joi.string()
+    .pattern(/^[a-zA-Zа-яА-Я0-9їЇіІєЄ]+$/)
     .min(constants.LIMIT_LENGTH_PASSWORD.minLength)
     .max(constants.LIMIT_LENGTH_PASSWORD.maxLength)
     .required(),
   userName: Joi.string()
-    // .alphanum()
-    .pattern(/^[a-zA-Zа-яА-Я0-9їЇіІєЄ,_"/\\ -]+$/)
+    .pattern(/^[a-zA-Zа-яА-Я0-9їЇіІєЄ\\ ]+$/)
     .min(constants.LIMIT_LENGTH_NAME.minLength)
     .max(constants.LIMIT_LENGTH_NAME.maxLength)
     .required(),
@@ -82,3 +83,7 @@ module.exports = {
   joiSchemaRegister,
   joiSchemaLogIn,
 };
+
+// userName: Joi.string()
+//.alphanum()
+// .pattern(/^[a-zA-Zа-яА-Я0-9їЇіІєЄ,_"/\\ -]+$/)
