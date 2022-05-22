@@ -17,8 +17,8 @@ const categorySchema = Schema(
         "Дім",
         "Освіта",
         "Інше",
-        "Регулярний",
-        "Нерегулярний",
+        "Регулярний дохід",
+        "Нерегулярний дохід",
       ],
       default: "Продукти",
       required: [true, "Category is required"],
@@ -29,12 +29,12 @@ const categorySchema = Schema(
 
 const joiCategorySchema = Joi.object({
   income: Joi.boolean().required(),
-  name: Joi.string().required()
+  name: Joi.string().required(),
 });
 
 const Category = model("category", categorySchema);
 
 module.exports = {
   Category,
-  joiCategorySchema
+  joiCategorySchema,
 };
