@@ -11,7 +11,10 @@
   },
   "consumes": ["application/json"],
   "produces": ["application/json"],
-  "servers": [{ "url": "https://localhost:3001" }],
+  "servers": [
+    { "url": "https://localhost:3001" },
+    { "url": "https://wallet-serv.herokuapp.com/" }
+  ],
   "tags": [
     {
       "name": "User",
@@ -20,10 +23,6 @@
     {
       "name": "Transactions",
       "description": "Transactions endpoints"
-    },
-    {
-      "name": "Statistics",
-      "description": "Statistics endpoints"
     },
     {
       "name": "Categories",
@@ -229,99 +228,50 @@
         }
       }
     },
-    "/statistics": {
-      "get": {
-        "tags": ["Statistics"],
-        "summary": "Get statistic per month by existing categories",
+    "/api/transactions/{transactionId}": {
+      "delete": {
+        "tags": ["Transactions"],
+        "summary": "Delete transaction",
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "in": "query",
-            "name": "year",
+            "in": "path",
+            "name": "transactionId",
             "required": true,
             "type": "string",
-            "description": "Year for statisctic"
-          },
-          {
-            "in": "query",
-            "name": "month",
-            "required": true,
-            "type": "string",
-            "description": "Month for statisctic"
+            "description": "Transaction which you want delete"
           }
         ],
         "responses": {
           "200": {
-            "description": "Successful operation",
+            "description": "Deleted",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StatisticsResponse"
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Transaction with id 44frfr44 is deleted."
+                    }
+                  }
                 }
               }
             }
           },
           "401": {
-            "description": "Unauthorized (invalid access token)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "Error"
-                    },
-                    "code": {
-                      "type": "number",
-                      "example": "401"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "Fail"
-                    },
-                    "code": {
-                      "type": "number",
-                      "example": "500"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Internal Server Error"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Missing header with authorization token.",
+            "content": {}
           }
         }
       }
     },
-    "/api/categories/{type}": {
+    "/api/categories": {
       "get": {
         "tags": ["Categories"],
         "security": [{ "Bearer": [] }],
         "summary": "Get categories",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "type",
-            "required": true,
-            "type": "string",
-            "description": "Type of categories"
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "Success",
@@ -378,6 +328,107 @@
             }
           }
         }
+      },
+      "post": {
+        "tags": ["Categories"],
+        "security": [{ "Bearer": [] }],
+        "summary": "Add category",
+        "parameters": [],
+        "requestBody": {
+          "description": "Add category",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": ["category"],
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "description": "Added category",
+                    "example": "Подорож"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddCategoriesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Creating a category failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Creating a category failed."
+                    },
+                    "code": {
+                      "type": "number",
+                      "example": "400"
+                    }
+                  }
+                },
+                "401": {
+                  "description": "Unauthorized (invalid access token)",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "example": "Error"
+                          },
+                          "code": {
+                            "type": "number",
+                            "example": "401"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "500": {
+                  "description": "Internal Server Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "example": "Fail"
+                          },
+                          "code": {
+                            "type": "number",
+                            "example": "500"
+                          },
+                          "message": {
+                            "type": "string",
+                            "example": "Internal Server Error"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -401,7 +452,7 @@
             "minlength": 6,
             "maxlength": 36
           },
-          "username": {
+          "userName": {
             "type": "string",
             "description": "User's name",
             "minlength": 2,
@@ -426,13 +477,19 @@
               "type": "string",
               "description": "User name",
               "example": "Adam"
+            },
+            "balance": {
+              "type": "number",
+              "description": "User balance",
+              "example": 120000
             }
           }
         },
         "example": {
           "user": {
             "email": "user@example.com",
-            "userName": "Adam"
+            "userName": "Adam",
+            "balance": 12000
           }
         }
       },
@@ -498,20 +555,25 @@
               "description": "Id of transaction",
               "example": "62536hghgdhg"
             },
-            "date": {
+            "dateTime": {
               "type": "string",
               "description": "Date of transaction",
               "example": "20.12.19"
+            },
+            "month": {
+              "type": "number",
+              "description": "Month of transaction",
+              "example": 4
+            },
+            "year": {
+              "type": "number",
+              "description": "Year of transaction",
+              "example": 2020
             },
             "income": {
               "type": "boolean",
               "description": "Type of transaction",
               "example": false
-            },
-            "category": {
-              "type": "string",
-              "description": "Category of transaction",
-              "example": "Products"
             },
             "comment": {
               "type": "string",
@@ -537,20 +599,25 @@
               "description": "Id of transaction",
               "example": "62536hghgdhg"
             },
-            "date": {
+            "dateTime": {
               "type": "string",
               "description": "Date of transaction",
               "example": "20.12.19"
+            },
+            "month": {
+              "type": "number",
+              "description": "Month of transaction",
+              "example": 4
+            },
+            "year": {
+              "type": "number",
+              "description": "Year of transaction",
+              "example": 2020
             },
             "income": {
               "type": "boolean",
               "description": "Type of transaction",
               "example": false
-            },
-            "category": {
-              "type": "string",
-              "description": "Category of transaction",
-              "example": "Products"
             },
             "comment": {
               "type": "string",
@@ -566,6 +633,11 @@
               "type": "number",
               "description": "Remaining balance",
               "example": 8500
+            },
+            "owner": {
+              "type": "string",
+              "description": "Owner of transaction",
+              "example": "7674637ffjvhdjh7d7"
             }
           }
         }
@@ -580,20 +652,25 @@
               "description": "Id of transaction",
               "example": "62536hghgdhg"
             },
-            "date": {
+            "dateTime": {
               "type": "string",
               "description": "Date of transaction",
               "example": "20.12.19"
+            },
+            "month": {
+              "type": "number",
+              "description": "Month of transaction",
+              "example": 4
+            },
+            "year": {
+              "type": "number",
+              "description": "Year of transaction",
+              "example": 2020
             },
             "income": {
               "type": "boolean",
               "description": "Type of transaction",
               "example": false
-            },
-            "category": {
-              "type": "string",
-              "description": "Category of transaction",
-              "example": "Products"
             },
             "comment": {
               "type": "string",
@@ -609,6 +686,16 @@
               "type": "number",
               "description": "Remaining balance",
               "example": 8500
+            },
+            "owner": {
+              "type": "string",
+              "description": "Owner of transaction",
+              "example": "7674637ffjvhdjh7d7"
+            },
+            "total": {
+              "type": "number",
+              "description": "Amount of transaction",
+              "example": 5
             }
           }
         },
@@ -630,10 +717,15 @@
                 "description": "Type of transaction",
                 "example": false
               },
-              "category": {
-                "type": "string",
-                "description": "Category of transaction",
-                "example": "Products"
+              "month": {
+                "type": "number",
+                "description": "Month of transaction",
+                "example": 4
+              },
+              "year": {
+                "type": "number",
+                "description": "Year of transaction",
+                "example": 2020
               },
               "comment": {
                 "type": "string",
@@ -644,12 +736,22 @@
                 "type": "number",
                 "description": "Sum of transaction",
                 "example": 1500
+              },
+              "owner": {
+                "type": "string",
+                "description": "Owner of transaction",
+                "example": "7674637ffjvhdjh7d7"
               }
             },
             "user_balance": {
               "type": "number",
               "description": "Remaining balance",
               "example": 9000
+            },
+            "total": {
+              "type": "number",
+              "description": "Amount of transaction",
+              "example": 5
             }
           },
           {
@@ -766,21 +868,23 @@
       "StatisticsResponse": {
         "type": "object",
         "properties": {
-          "categories": {
-            "type": "array",
-            "example": "An array of objects 'categoryPerMonth' with spend sum"
-          },
-          "total": {
-            "type": "object",
-            "properties": {
-              "expense": {
-                "type": "number",
-                "example": 240000
-              },
-              "income": {
-                "type": "Number",
-                "example": 1400000
-              }
+          "transactions": {
+            "type": "object"
+          }
+        },
+        "example": {
+          "transactions": {
+            "transactionsIncome": {
+              "data": "Result of Income transactions"
+            },
+            "transactionsExpense": {
+              "data": "Result of Expense transactions"
+            },
+            "allIncome": {
+              "amount": 3
+            },
+            "allExpense": {
+              "amount": 3
             }
           }
         }
@@ -805,6 +909,18 @@
             "Регулярный",
             "Нерегулярный"
           ]
+        }
+      },
+      "AddCategoriesResponse": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "example": "Подорож"
+          }
+        },
+        "example": {
+          "category": "Подорож"
         }
       }
     },
