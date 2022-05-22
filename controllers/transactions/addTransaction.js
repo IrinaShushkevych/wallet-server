@@ -1,6 +1,7 @@
 const { BadRequest, Unauthorized } = require('http-errors');
 
 const { Transaction, User } = require("../../models");
+const { updateTransactionsBalance } = require('../../helpers');
 
 module.exports = async (req, res, next) => {
   const { _id } = req.user;
@@ -43,19 +44,7 @@ module.exports = async (req, res, next) => {
     .sort({ datetime: 1 });
 
   if (transactionsToUpdate?.length > 0) {
-    let newBalance = null;
-    for (let i = 0; i < transactionsToUpdate.length; i += 1) {
-      const transactionId = transactionsToUpdate[i]._id;
-      const previousTransactionBalance = newBalance || currentBalance;
-
-      newBalance = transactionsToUpdate[i].income
-        ? previousTransactionBalance + transactionsToUpdate[i].sum
-        : previousTransactionBalance - transactionsToUpdate[i].sum;
-
-      await Transaction.findByIdAndUpdate(transactionId, {
-        balance: newBalance,
-      });
-    }
+    updateTransactionsBalance(transactionsToUpdate, currentBalance);
   }
 
   res

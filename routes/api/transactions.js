@@ -13,5 +13,6 @@ router.post(
   validation(joiTransactionSchema),
   wrapper(transactions.addTransaction)
 );
+router.delete('/:transactionId', auth, wrapper(transactions.deleteTransaction))
 
 module.exports = router;
