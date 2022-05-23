@@ -44,7 +44,7 @@ module.exports = async (req, res, next) => {
     .sort({ datetime: 1 });
 
   if (transactionsToUpdate?.length > 0) {
-    updateTransactionsBalance(transactionsToUpdate, currentBalance);
+    await updateTransactionsBalance(transactionsToUpdate, currentBalance);
   }
 
   res

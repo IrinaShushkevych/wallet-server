@@ -51,7 +51,7 @@ module.exports = async (req, res, next) => {
     );
 
   if (transactionsToUpdate?.length > 0) {
-    updateTransactionsBalance(transactionsToUpdate, prevBalance)
+    await updateTransactionsBalance(transactionsToUpdate, prevBalance)
   }
 
   res
