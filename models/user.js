@@ -60,6 +60,10 @@ const joiSchemaRegister = Joi.object({
       minDomainSegments: constants.MIN_DOMAIN_SEGMENTS,
       tlds: { allow: ["com", "net"] },
     })
+
+    .pattern(
+      /^((([0-9A-Za-z\.]{1}[-0-9A-z\.]{1,}))@([-0-9A-z]{1,}\.){1,2}[A-Za-z]{2,})$/
+    )
     .min(constants.LIMIT_LENGTH_EMAIL.min)
     .max(constants.LIMIT_LENGTH_EMAIL.max)
     .required(),
