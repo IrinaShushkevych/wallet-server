@@ -1,66 +1,124 @@
-const { BadRequest } = require('http-errors');
+const { BadRequest } = require("http-errors");
 
-const { Transaction } = require('../../models');
+const { Transaction } = require("../../models");
 
 module.exports = async (req, res) => {
   const { _id } = req.user;
   const { month, year } = req.query;
+  let transactionsIncome = [],
+    transactionsExpense = [];
 
-  const transactionsIncome = await Transaction.aggregate([
-    {
-      $lookup: {
-        from: 'categories',
-        localField: 'category',
-        foreignField: '_id',
-        as: 'category',
+  if (month && year) {
+    transactionsIncome = await Transaction.aggregate([
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
       },
-    },
-    {
-      $match: {
-        owner: _id,
-        income: true,
-        year: Number(year),
-        month: Number(month),
+      {
+        $match: {
+          owner: _id,
+          income: true,
+          year: Number(year),
+          month: Number(month),
+        },
       },
-    },
-    {
-      $group: {
-        _id: '$category',
-        totalSum: { $sum: '$sum' },
+      {
+        $group: {
+          _id: "$category",
+          totalSum: { $sum: "$sum" },
+        },
       },
-    },
-    {
-      $project: { '_id.name': 1, '_id.income': 1, totalSum: 1 },
-    },
-  ]);
+      {
+        $project: { "_id.name": 1, "_id.income": 1, totalSum: 1 },
+      },
+    ]);
 
-  const transactionsExpense = await Transaction.aggregate([
-    {
-      $lookup: {
-        from: 'categories',
-        localField: 'category',
-        foreignField: '_id',
-        as: 'category',
+    transactionsExpense = await Transaction.aggregate([
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
       },
-    },
-    {
-      $match: {
-        owner: _id,
-        income: false,
-        year: Number(year),
-        month: Number(month),
+      {
+        $match: {
+          owner: _id,
+          income: false,
+          year: Number(year),
+          month: Number(month),
+        },
       },
-    },
-    {
-      $group: {
-        _id: '$category',
-        totalSum: { $sum: '$sum' },
+      {
+        $group: {
+          _id: "$category",
+          totalSum: { $sum: "$sum" },
+        },
       },
-    },
-    {
-      $project: { '_id.name': 1, '_id.income': 1, totalSum: 1 },
-    },
-  ]);
+      {
+        $project: { "_id.name": 1, "_id.income": 1, totalSum: 1 },
+      },
+    ]);
+  } else if (year) {
+    transactionsIncome = await Transaction.aggregate([
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      {
+        $match: {
+          owner: _id,
+          income: true,
+          year: Number(year),
+        },
+      },
+      {
+        $group: {
+          _id: "$category",
+          totalSum: { $sum: "$sum" },
+        },
+      },
+      {
+        $project: { "_id.name": 1, "_id.income": 1, totalSum: 1 },
+      },
+    ]);
+
+    transactionsExpense = await Transaction.aggregate([
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      {
+        $match: {
+          owner: _id,
+          income: false,
+          year: Number(year),
+        },
+      },
+      {
+        $group: {
+          _id: "$category",
+          totalSum: { $sum: "$sum" },
+        },
+      },
+      {
+        $project: { "_id.name": 1, "_id.income": 1, totalSum: 1 },
+      },
+    ]);
+  }
 
   let allIncome = 0;
   transactionsIncome.forEach((trs) => (allIncome += trs.totalSum));
@@ -69,11 +127,11 @@ module.exports = async (req, res) => {
   transactionsExpense.forEach((trs) => (allExpense += trs.totalSum));
 
   if (!transactionsIncome && !transactionsExpense) {
-    throw new BadRequest('Bad request');
+    throw new BadRequest("Bad request");
   }
 
   res.status(200).json({
-    status: 'success',
+    status: "success",
     transactions: {
       transactionsIncome,
       transactionsExpense,
